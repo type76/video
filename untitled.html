@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+ <meta charset="UTF-8"> 
+ <title>default filename tv</title>
+<style>
+body {background: #000; color: #fff; font-family: monospace;
+text-align: center;}   
+#container {width: 640px; margin: 0 auto; display: block;}
+button {margin: 1em; padding: 1em; background: transparent;
+border: none; outline: none; display: block;
+width: 10%; height: 70%; position: absolute;
+cursor: pointer; color: #fff; font-size: 40px; opacity: 0.1;}
+button:hover {color: red; opacity: 1;}
+#videoInfo {margin: 1em 0;}
+#player {position: fixed; z-index: -99; width: 100%; height: 100%;
+top:0; left: 0;}
+#backbtn {left: 0; text-align: left; transform: rotate(90deg);}
+#newbtn {right: 0; text-align: right; transform: rotate(-90deg);}
+</style>
+   
+  <body>
+<div id="container">    
+    <div id="player"></div>
+    <div id="videoInfo">&nbsp;</div>
+    <button id="backbtn" type="button" onClick="lastVideo()" title="previous video">
+    <svg height="60" preserveAspectRatio="none" viewBox="0 0 60 60" width="60" xmlns="http://www.w3.org/2000/svg"><path d="m22.15 26.1 7.9 7.9 7.9-7.9" fill="none" stroke="#fff" stroke-linecap="square" stroke-miterlimit="3" stroke-width="10"/></svg>
+  </button> 
+     <button id="newbtn" type="button" onClick="newVideo()" title="next video">
+       <svg height="60" preserveAspectRatio="none" viewBox="0 0 60 60" width="60" xmlns="http://www.w3.org/2000/svg"><path d="m22.15 26.1 7.9 7.9 7.9-7.9" fill="none" stroke="#fff" stroke-linecap="square" stroke-miterlimit="3" stroke-width="10"/></svg>
+     </button> 
+</div>
+
+    <script>
+      var lastVideoID = [];
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          rel: '0',
+          fs: '1',
+          controls: 0,
+          showinfo: 0,
+          enablejsapi: '1',
+          iv_load_policy: '3',
+          autoplay: '0',
+          playerVars: { 
+            'autoplay': 0,
+            'controls': 0, 
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange,
+            'onError': onPlayerReady
+          }
+
+        });
+      }
+
+
+      function onPlayerReady(event) {
+        newVideo();
+        
+      }
+
+ 
+     function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.ENDED) {
+          newVideo();
+      }
+        if (event.data == YT.PlayerState.PLAYING) {
+          videoInfo();
+      }
+    }
+
+function newVideo(){
+
+var search = searcher();
+// console.log(search)
+
+var e = player.loadPlaylist({listType:'search',
+        list: search,
+        index: Math.floor(Math.random()*3),
+        startSeconds:'0'})
+
+// var fieldTitle = document.getElementById('videoInfo'); 
+// fieldTitle.innerHTML = "loading...";
+
+}
+
+function lastVideo(){
+
+lastVideoID.splice(-1, 1);
+
+// console.log(lastVideoID[lastVideoID.length-1])
+
+player.loadVideoById({videoId:lastVideoID[lastVideoID.length-1]});
+
+var fieldTitle = document.getElementById('videoInfo'); 
+fieldTitle.innerHTML = "loading previous video...";
+
+}
+
+function videoInfo(){
+
+var videoData = player.getVideoData();
+
+if (lastVideoID[lastVideoID.length-1] != videoData.video_id){
+lastVideoID.push(videoData.video_id);
+}
+var authorName = videoData.author;
+var title = videoData.title;
+var infoComp = title + ", by " + authorName;
+// console.log(infoComp);
+//console.log(player.l.playlist.length)
+
+var fieldTitle = document.getElementById('videoInfo'); 
+fieldTitle.innerHTML = infoComp;
+}
+
+function searcher(){
+var firstpart = arrayPicker(["DSC", "MOV", "IMG", "100", "MVI"])
+var separator = arrayPicker([" ", "_", ""])
+var numberBase = Math.floor(Math.random()*9999);
+var numbers = padToFour(numberBase)
+
+var query = firstpart + separator + numbers;
+var search = query;
+
+return search;
+}
+
+function padToFour(number) {
+  if (number<=9999) { number = ("000"+number).slice(-4); }
+  return number;
+}
+
+function arrayPicker(array){
+return array[Math.floor(Math.random()*array.length)];
+}
+
+
+/// everest pipkin, 2019
+
+    </script>
+  </body>
+</html>
